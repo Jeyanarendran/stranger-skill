@@ -1,6 +1,7 @@
 ---
-name: stranger-skill
-description: Use when implementing a feature, reviewing a change, or running tests — the build/review/test loop Jey actually uses to ship DotMD. Encodes spec→plan→implement, single-deploy sweeps, brokered-auth gotchas, default-on featureEnabled() gates, line-based scripted edits for CRLF/UTF-8 files, isolated worktrees + node_modules junctioning, the @live e2e harness against the local Docker stack, animation-settle waits, look-for-older-commit-for-quick-fix, gate defaults in config so a bare deploy can not regress, and bounded timeouts everywhere.
+
+name: stranger-skill description: Use when implementing a feature, reviewing a change, or running tests — the build/review/test loop Jey actually uses to ship DotMD. Encodes spec→plan→implement, single-deploy sweeps, brokered-auth gotchas, default-on featureEnabled() gates, line-based scripted edits for CRLF/UTF-8 files, isolated worktrees + node_modules junctioning, the @live e2e harness against the local Docker stack, animation-settle waits, look-for-older-commit-for-quick-fix, gate defaults in config so a bare deploy can not regress, and bounded timeouts everywhere.
+
 ---
 
 # stranger-skill — Build · Review · Test
@@ -36,8 +37,8 @@ For any change beyond a one-liner:
 
 ### 1.2 Isolate
 
-- Work in a **git worktree off `origin/main`**, not the main checkout. The main checkout has `.env.local`, build state, possibly running dev servers.
-- **Junction `node_modules`** from the main checkout into the worktree (`New-Item -ItemType Junction -Path "$wt/node_modules" -Target "$src/node_modules"`) — no `npm install`, no duplicated install state. Workspace hoisting means the root junction covers nested packages.
+- Work in a **git worktree off ****`origin/main`**, not the main checkout. The main checkout has `.env.local`, build state, possibly running dev servers.
+- **Junction ****`node_modules`** from the main checkout into the worktree (`New-Item -ItemType Junction -Path "$wt/node_modules" -Target "$src/node_modules"`) — no `npm install`, no duplicated install state. Workspace hoisting means the root junction covers nested packages.
 - For multi-agent work, give each agent its own worktree to prevent index races. Commit only your own files (`git add <explicit paths>`, never `git add -A`).
 
 ### 1.3 TDD red → green → commit
@@ -53,18 +54,13 @@ These rules exist because Bash, Python, and PowerShell each have edge cases that
 
 - **Prefer the Edit tool** for known-good string replacements. It is encoding-safe.
 - When Edit cannot reach (bg-isolation guard, complex multi-line splices, mixed CRLF/LF), use **Python heredocs**:
-  ```python
-  with io.open(path, "r", encoding="utf-8", newline="") as f: s = f.read()
-  nl = "\r\n" if "\r\n" in s else "\n"   # detect, preserve
-  C = lambda t: t.replace("\n", nl)          # convert anchors to file newline
-  ```
-- **NEVER edit source with PowerShell `-replace`** on multibyte files — it mojibakes em-dashes, arrows, accented chars to `â€"` / `â†`. Use the Edit tool or Python instead.
+
+  `python   with io.open(path, "r", encoding="utf-8", newline="") as f: s = f.read()   nl = "\r\n" if "\r\n" in s else "\n"   # detect, preserve   C = lambda t: t.replace("\n", nl)          # convert anchors to file newline   `
+
+- **NEVER edit source with PowerShell ****`-replace`** on multibyte files — it mojibakes em-dashes, arrows, accented chars to `â€"` / `â†`. Use the Edit tool or Python instead.
 - For multi-line anchors that might span CRLF inconsistencies, **split → splice line-based** is more robust than huge string matches:
-  ```python
-  lines = s.split(nl)
-  i = next(idx for idx,l in enumerate(lines) if l.strip().startswith("X"))
-  lines.insert(i+1, "new content")
-  ```
+
+  `python   lines = s.split(nl)   i = next(idx for idx,l in enumerate(lines) if l.strip().startswith("X"))   lines.insert(i+1, "new content")   `
 
 ### 1.5 Defaults that prevent silent regression
 
@@ -74,7 +70,7 @@ When a config value is **non-secret + prod-fixed**, default it in `config.ts` (o
 - `DEFAULT_GOOGLE_CLIENT_ID` + `DEFAULT_PUBLIC_URL` — a deploy that forgot to `export` them shipped no Google provider and an http AUTH_URL.
 - `featureEnabled(value)` — features are **ON everywhere except the vitest runtime**. Unit tests stay green; prod cannot ship a feature dark for want of a flag.
 
-> **Rule: secrets stay in Secrets Manager / `.env.local`. Everything else gets a sane prod default in code.**
+> **Rule: secrets stay in Secrets Manager / ****`.env.local`****. Everything else gets a sane prod default in code.**
 
 ### 1.6 Brokered auth — get the wiring right once
 
@@ -129,11 +125,11 @@ for i in $(seq 1 12); do
 done
 ```
 
-If you exceed the bound, fail loudly. **Do not silently `sleep` longer.**
+If you exceed the bound, fail loudly. **Do not silently ****`sleep`**** longer.**
 
 ### 3.2 The local Docker stack is the e2e source of truth
 
-`@live` specs sign in via dev-auth (localhost-only) and exercise real code paths against the **local Docker stack on `:3001`**. They do NOT target prod — prod uses real Cognito + real AI + no dev-auth.
+`@live` specs sign in via dev-auth (localhost-only) and exercise real code paths against the **local Docker stack on ****`:3001`**. They do NOT target prod — prod uses real Cognito + real AI + no dev-auth.
 
 ```bash
 # always rebuild from the merged main before an @live run
