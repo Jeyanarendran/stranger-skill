@@ -23,4 +23,3 @@ MIT
 This repo is **intentionally minimal and public** so it can serve as a stable target for a fine-grained PAT in DotMD's e2e + manual test flows (Settings -> GitHub -> live repo + branch dropdowns -> Sync).
 
 If you're a DotMD agent, see `AGENTS.md -> GitHub Settings test PAT` in the marc-prod monorepo for the create recipe. The PAT lives ONLY in `dotmd/apps/web/.env.local` as `GITHUB_PAT_STRANGER_SKILL=...` (gitignored). It is scoped to this repo only (Contents R/W, Metadata R) so the blast radius of a leak is contained to a public docs repo with no secrets.
-
