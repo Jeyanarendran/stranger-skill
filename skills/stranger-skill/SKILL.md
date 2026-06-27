@@ -2,10 +2,6 @@
 
 name: stranger-skill description: Use when implementing a feature, reviewing a change, or running tests — the build/review/test loop Jey actually uses to ship DotMD. Encodes spec→plan→implement, single-deploy sweeps, brokered-auth gotchas, default-on featureEnabled() gates, line-based scripted edits for CRLF/UTF-8 files, isolated worktrees + node_modules junctioning, the @live e2e harness against the local Docker stack, animation-settle waits, look-for-older-commit-for-quick-fix, gate defaults in config so a bare deploy can not regress, and bounded timeouts everywhere.
 
-
-
-
-
 ---
 
 # stranger-skill — Build · Review · Test
